@@ -28,24 +28,31 @@ classdef Barrier < GameObject
             
             % Find indices of non-black pixels
             nonBlackPixelsMatrix = sum(obj.ImageData, 3) ~= 0; % true for non-black pixels, false otherwise
-            indexOfNonBlackPixels = find(nonBlackPixelsMatrix); % linear index of non-blackPixels
+            nonBlackBlocksMatrix = squeeze(sum(sum(reshape(nonBlackPixelsMatrix,64,16,64,16),1), 3)); % finds non-black blocks of size 64x64, see https://stackoverflow.com/questions/26280418/sum-over-blocks-in-a-2d-matrix-matlab
+            indexOfNonBlackPixels = find(nonBlackBlocksMatrix); % linear index of non-blackPixels
             
-            % Determine the number of pixels to change
-            numPixelsToChange = round(numel(nonBlackPixelsMatrix) / 6);  % 1/6 of all pixels -> barrier need 6 hits to be destroyed
+            % Determine the number of blocks to make black
+            numBlocksToChange = round(numel(nonBlackBlocksMatrix) / 6);  % 1/6 of all pixels -> barrier need 6 hits to be destroyed
             
-            % Randomly select pixels to turn black
-            if length(indexOfNonBlackPixels) > numPixelsToChange
-                pixelsToBlacken = indexOfNonBlackPixels(randperm(length(indexOfNonBlackPixels), numPixelsToChange));
+            % Randomly select blocks to turn black
+            if length(indexOfNonBlackPixels) > numBlocksToChange
+                blocksToBlacken = indexOfNonBlackPixels(randperm(length(indexOfNonBlackPixels), numBlocksToChange));
             else
-                pixelsToBlacken = indexOfNonBlackPixels;
+                blocksToBlacken = indexOfNonBlackPixels;
             end
             
             % Change selected pixels to black
-            for thisPixelIndex = pixelsToBlacken'
-                % Convert linear index back to subscript indices
-                [row, col] = ind2sub(size(nonBlackPixelsMatrix), thisPixelIndex);
+            for thisBlockIndex = blocksToBlacken'
+                % calculate linear index of all pixels in given block...
+                % its magic :D
+                nonBlackPixelsInds = rem(thisBlockIndex-1, 16)*64 + repmat((1:64).', 1, 64) + fix((thisBlockIndex-1)/16)*1024*64 + (0:1024:1024*63);
                 
-                obj.ImageData(row, col, :) = 0;
+                for thisPixelIndex = nonBlackPixelsInds(:)'
+                % Convert linear index back to subscript indices
+                    [row, col] = ind2sub(size(nonBlackPixelsMatrix), thisPixelIndex);
+                
+                    obj.ImageData(row, col, :) = 0;
+                end
             end
             
             obj.ImageObject.ImageSource = obj.ImageData;
