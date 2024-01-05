@@ -22,6 +22,7 @@ classdef Barrier < GameObject
         %QUICK FIX: init a taken hits variable and delete the barrier
         %if enoguh hits are taken. CONS: isn't that cool
         function hitByBullet(obj)
+        
             if ~isvalid(obj.ImageObject)
                 return
             end
@@ -58,7 +59,9 @@ classdef Barrier < GameObject
             obj.ImageObject.ImageSource = obj.ImageData;
                        
             if isempty(find(obj.ImageData, 1))
+             
                 delete(obj.ImageObject);
+               
             end
         end
     end

@@ -440,16 +440,22 @@ classdef Game < handle
 
         function hit = checkCollisionBarrier(obj, bullet)
             hit = false;
-            for i = 1:3
-                % boundery checks
-                 if (bullet.x < obj.barriers(i).x + obj.barriers(i).width) && ... 
-                    (bullet.x + bullet.width > obj.barriers(i).x) && ...  
-                    (bullet.y < obj.barriers(i).y + obj.barriers(i).height) && ...  
-                    (bullet.y + bullet.height > obj.barriers(i).y - obj.barriers(i).height)
 
-                    obj.barriers(i).hitByBullet();
-                    hit = true;
-                 end
+            for i = 1:length(obj.barriers)
+                try
+                    if ~isvalid(obj.barriers(i).ImageObject)
+                            obj.barriers(i) = [];        
+                    end
+                    % boundery checks
+                     if (bullet.x < obj.barriers(i).x + obj.barriers(i).width) && ... 
+                        (bullet.x + bullet.width > obj.barriers(i).x) && ...  
+                        (bullet.y < obj.barriers(i).y + obj.barriers(i).height) && ...  
+                        (bullet.y + bullet.height > obj.barriers(i).y - obj.barriers(i).height)
+                        
+                        obj.barriers(i).hitByBullet()                                          
+                        hit = true;
+                     end
+                end
             end
         end
 
