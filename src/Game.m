@@ -73,7 +73,7 @@ classdef Game < handle
             
             obj.increasesize = 5;
 
-            obj.bulletspeed = 50;
+            obj.bulletspeed = figHeight/30;
             
             %timer fun 
             obj.stepsize = 20;
@@ -575,7 +575,9 @@ classdef Game < handle
              
             %delte all images 
              for i = 1:3
-                obj.barriers(i).deleteImage()          
+                 try
+                    obj.barriers(i).deleteImage()     
+                 end
              end
 
              for i = 1:length(obj.alienfleets)
